@@ -8,7 +8,7 @@ Paste `show cdp neighbors detail` / `show lldp neighbors detail` output from you
 
 ## Why
 
-Every network I've walked into had one of two diagrams: none, or a Visio from three years ago that's wrong. CDP and LLDP already know the real topology. The switches tell you exactly who's plugged in where, but only one box at a time, in a wall of text.
+Most small networks have one of two diagrams: none, or a Visio from three years ago that is wrong. CDP and LLDP already know the real topology. The switches tell you exactly who's plugged in where, but only one box at a time, in a wall of text.
 
 So you SSH to five switches, run the same command on each, paste it all into one box here, and you have the map in a minute. It's also a quick way to catch the classic misconfigs while you're at it.
 
