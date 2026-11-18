@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>topoviz: network map from CDP / LLDP output</title>
+<meta name="description" content="Paste show cdp neighbors detail or show lldp neighbors detail from your switches and get a topology diagram with native VLAN, duplex and one-way link checks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Atkinson+Hyperlegible+Next:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='5' width='14' height='6' rx='1' fill='%23F5D547' stroke='%231E2A33'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="app">
+  <aside class="panel">
+    <header>
+      <h1>topoviz</h1>
+      <p>Paste <code>show cdp neighbors detail</code> or <code>show lldp neighbors detail</code> from as many devices as you like, prompts included. You get the map, plus anything that looks wrong.</p>
+    </header>
+
+    <label for="input" class="lbl">Neighbour output</label>
+    <textarea id="input" spellcheck="false" autocomplete="off"></textarea>
+    <div class="row">
+      <button id="draw" type="button">Draw map</button>
+      <button id="load-sample" type="button" class="quiet">Load example</button>
+      <button id="clear" type="button" class="quiet">Clear</button>
+    </div>
+    <p id="stats" class="stats"></p>
+
+    <section aria-labelledby="issues-h">
+      <h2 id="issues-h">Things to check</h2>
+      <ul id="issues" class="issues"></ul>
+    </section>
+  </aside>
+
+  <main class="stage">
+    <div class="toolbar">
+      <button id="fit" type="button" class="quiet">Fit</button>
+      <button id="relayout" type="button" class="quiet">Re-arrange</button>
+      <button id="dl-svg" type="button" class="quiet">Download SVG</button>
+      <button id="dl-dot" type="button" class="quiet">Graphviz .dot</button>
+    </div>
+    <svg id="map" aria-label="Network topology" role="img"></svg>
+    <p class="help">Drag devices to move them, drag empty space to pan, scroll or pinch to zoom. Click a device for details.</p>
+    <div id="card" class="card" hidden></div>
+  </main>
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
