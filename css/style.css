@@ -138,5 +138,7 @@ button:focus-visible, textarea:focus-visible, .issues button:focus-visible { out
   .app { grid-template-columns: 1fr; grid-template-rows: 62vh auto; height: auto; }
   .stage { order: -1; height: 62vh; border-bottom: 1px solid var(--rule); }
   .panel { border-right: 0; overflow: visible; }
-  .card { width: auto; right: 14px; }
+  .card { width: auto; right: 14px; top: 56px; }
+  .toolbar button { font-size: .82rem; padding: 4px 8px; }
+  .help { display: none; }
 }

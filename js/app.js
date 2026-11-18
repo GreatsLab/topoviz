@@ -221,7 +221,7 @@ svg.addEventListener("pointerdown", (e) => {
   if (node) {
     const p = pos.get(node.dataset.id);
     const s = toSvg(e.clientX, e.clientY);
-    drag = { node: node.dataset.id, dx: p.x - s.x, dy: p.y - s.y, moved: false };
+    drag = { node: node.dataset.id, dx: p.x - s.x, dy: p.y - s.y, sx: e.clientX, sy: e.clientY, moved: false };
   } else {
     drag = { pan: true, sx: e.clientX, sy: e.clientY, view: { ...view }, moved: false };
     svg.classList.add("panning");
@@ -236,6 +236,8 @@ svg.addEventListener("pointermove", (e) => {
       x: drag.view.x + drag.view.w * (1 - k) / 2, y: drag.view.y + drag.view.h * (1 - k) / 2 };
     applyView();
   } else if (drag.node) {
+    // a click with a shaky hand / touchscreen still counts as a click
+    if (!drag.moved && Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) < 4) return;
     const s = toSvg(e.clientX, e.clientY);
     const p = pos.get(drag.node);
     p.x = s.x + drag.dx; p.y = s.y + drag.dy; p.pinned = true;
