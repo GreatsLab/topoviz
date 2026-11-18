@@ -117,6 +117,7 @@ button:focus-visible, textarea:focus-visible, .issues button:focus-visible { out
 .node { cursor: move; }
 .node .glyph { fill: var(--ink); }
 .node .glyph-line { stroke: #fff; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.node text { paint-order: stroke; stroke: var(--canvas); stroke-width: 4px; stroke-linejoin: round; }
 .node text.name { font-family: var(--sans); font-weight: 700; font-size: 13px; fill: var(--ink); }
 .node text.sub { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-2); }
 .node.ghost .glyph { fill: #8C989F; }

@@ -6,7 +6,8 @@
 // to get each device's tier, pin y to the tier, let forces sort out x.
 // Deterministic (seeded) so the same paste gives the same picture.
 
-const TIER_GAP = 150;
+const TIER_GAP = 200;
+const MIN_GAP = 170;   // min horizontal distance between devices in the same tier
 
 function rng(seed) {
   let s = seed >>> 0;
@@ -73,6 +74,7 @@ export function layout(graph, prev = new Map()) {
 
   const N = devices.length;
   for (let it = 0; it < 400; it++) {
+    if (it % 40 === 39) spreadTiers(byTier, pos, fixed);
     const alpha = 1 - it / 400;
     // repulsion (n^2 is fine, nobody pastes 2000 devices into a text box)
     for (let i = 0; i < N; i++) {
@@ -82,7 +84,7 @@ export function layout(graph, prev = new Map()) {
         let dx = b.x - a.x, dy = b.y - a.y;
         let d2 = dx * dx + dy * dy;
         if (d2 < 1) { dx = rand() - .5; dy = rand() - .5; d2 = 1; }
-        const f = 9000 / d2 * alpha;
+        const f = 40000 / d2 * alpha;
         const d = Math.sqrt(d2);
         a.vx -= dx / d * f; a.vy -= dy / d * f * .2;
         b.vx += dx / d * f; b.vy += dy / d * f * .2;
@@ -105,6 +107,23 @@ export function layout(graph, prev = new Map()) {
       p.vx *= .6; p.vy *= .6;
     }
   }
+  spreadTiers(byTier, pos, fixed);
   for (const [k, p] of pos) { if (fixed.has(k)) p.pinned = true; }
   return pos;
+}
+
+// forces alone left devices in the same row overlapping (names on top of
+// each other). Final pass: walk each row left to right, push apart to MIN_GAP,
+// then re-centre the row on where it was.
+function spreadTiers(byTier, pos, fixed) {
+  for (const ds of byTier.values()) {
+    const row = ds.filter(d => !fixed.has(d.id)).map(d => pos.get(d.id)).sort((a, b) => a.x - b.x);
+    if (row.length < 2) continue;
+    const before = row.reduce((s, p) => s + p.x, 0) / row.length;
+    for (let i = 1; i < row.length; i++) {
+      if (row[i].x - row[i - 1].x < MIN_GAP) row[i].x = row[i - 1].x + MIN_GAP;
+    }
+    const after = row.reduce((s, p) => s + p.x, 0) / row.length;
+    for (const p of row) p.x += before - after;
+  }
 }

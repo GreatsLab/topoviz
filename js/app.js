@@ -137,15 +137,53 @@ function update() {
     const o = off.get(x);
     const cx = (a.x + b.x) / 2 + nx * o * 2, cy = (a.y + b.y) / 2 + ny * o * 2;
     x.path.setAttribute("d", `M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}`);
-    // tapes sit ~30% along the curve from each end
+    x.geom = { a, b, cx, cy, len };
+  }
+  placeTapes();
+}
+
+// Greedy label placement: each tape starts a little way out from its
+// device and slides further along the cable until it doesn't overlap a
+// device, a device name, or a tape that's already placed.
+function placeTapes() {
+  const boxes = [];
+  for (const [id, p] of pos) {
+    boxes.push({ x: p.x - 30, y: p.y - 24, w: 60, h: 48 });              // glyph
+    const name = graph.devices.find(d => d.id === id);
+    const w = Math.max(id.length * 8, (name?.ip || "").length * 6.6) + 6;
+    boxes.push({ x: p.x - w / 2, y: p.y + 25, w, h: 32 });                // name + ip
+  }
+  const hit = (r) => boxes.some(b => r.x < b.x + b.w && b.x < r.x + r.w && r.y < b.y + b.h && b.y < r.y + r.h);
+
+  const ends = [];
+  for (const x of els.links) {
+    ends.push({ x, tape: x.ta, text: x.l.aIf, from: "a" });
+    ends.push({ x, tape: x.tb, text: x.l.bIf, from: "b" });
+  }
+  for (const e of ends) {
+    const { a, b, cx, cy, len } = e.x.geom;
     const at = (t) => {
       const u = 1 - t;
       return [u * u * a.x + 2 * u * t * cx + t * t * b.x, u * u * a.y + 2 * u * t * cy + t * t * b.y];
     };
-    const tA = Math.min(.42, 52 / len + .06), tB = 1 - tA;
-    const [ax, ay] = at(tA), [bx, by] = at(tB);
-    x.ta.setAttribute("transform", `translate(${ax.toFixed(1)},${ay.toFixed(1)})`);
-    x.tb.setAttribute("transform", `translate(${bx.toFixed(1)},${by.toFixed(1)})`);
+    const me = e.from === "a" ? a : b, other = e.from === "a" ? b : a;
+    // cables leaving downwards have to clear the device name first
+    const down = (other.y - me.y) / len > 0.3;
+    const w = e.text.length * 6.4 + 8;
+    let chosen = null;
+    for (let d = down ? 74 : 44; d < len / 2; d += 14) {
+      const t = d / len;
+      const [px, py] = at(e.from === "a" ? t : 1 - t);
+      const r = { x: px - w / 2, y: py - 8, w, h: 16 };
+      if (!hit(r)) { chosen = [px, py, r]; break; }
+      if (!chosen) chosen = [px, py, r];   // fallback: first spot, even if it overlaps
+    }
+    if (!chosen) {
+      const [px, py] = at(e.from === "a" ? .35 : .65);
+      chosen = [px, py, { x: px - w / 2, y: py - 8, w, h: 16 }];
+    }
+    boxes.push(chosen[2]);
+    e.tape.setAttribute("transform", `translate(${chosen[0].toFixed(1)},${chosen[1].toFixed(1)})`);
   }
 }
 
